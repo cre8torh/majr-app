@@ -604,10 +604,18 @@
 <!-- Config Panel -->
 <div class="config-panel">
   <div>
-    <label>Status</label>
-    <input type="text" id="azureEndpoint" value="Engine ready — no setup required" readonly style="color:#888;cursor:default;width:280px;" />
+    <label>Azure OpenAI Endpoint</label>
+    <input type="text" id="azureEndpoint" placeholder="https://your-resource.openai.azure.com/" />
   </div>
-  <button class="connect-btn" onclick="testConnection()">Verify Engine</button>
+  <div>
+    <label>API Key</label>
+    <input type="password" id="azureKey" placeholder="Your Azure OpenAI Key" />
+  </div>
+  <div>
+    <label>Deployment Name</label>
+    <input type="text" id="deploymentName" placeholder="majr-gpt4o" value="majr-gpt4o" />
+  </div>
+  <button class="connect-btn" onclick="testConnection()">Connect Engine</button>
 </div>
 
 <!-- Main App -->
@@ -749,19 +757,28 @@
     return active;
   }
 
-  const PROXY_URL = 'https://majr-proxy-evgfhna5hxd4hhbm.eastus2-01.azurewebsites.net/api/Majr-proxy';
-
   async function testConnection() {
+    const endpoint = document.getElementById('azureEndpoint').value.trim();
+    const key = document.getElementById('azureKey').value.trim();
+    const deployment = document.getElementById('deploymentName').value.trim();
     const pill = document.getElementById('statusPill');
+
+    if (!endpoint || !key || !deployment) {
+      alert('Please fill in all connection fields.');
+      return;
+    }
+
     pill.textContent = 'Connecting...';
     pill.className = 'status-pill';
 
     try {
-      const res = await fetch(PROXY_URL, {
+      const url = `${endpoint.replace(/\/$/, '')}/openai/deployments/${deployment}/chat/completions?api-version=2024-02-15-preview`;
+      const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'api-key': key },
         body: JSON.stringify({
-          messages: [{ role: 'user', content: 'ping' }]
+          messages: [{ role: 'user', content: 'ping' }],
+          max_tokens: 5
         })
       });
 
@@ -770,152 +787,17 @@
         pill.textContent = 'Engine Live';
         pill.className = 'status-pill connected';
       } else {
+        const err = await res.json();
         pill.textContent = 'Connection Failed';
         pill.className = 'status-pill';
-        alert('Connection failed. Make sure your Azure Function is running.');
+        alert(`Connection error: ${err.error?.message || 'Check your credentials.'}`);
       }
     } catch (e) {
       pill.textContent = 'Not Connected';
       pill.className = 'status-pill';
-      alert('Could not reach the engine. Check your Azure Function is deployed and running.');
+      alert('Connection failed. Check your endpoint URL and try again.');
     }
   }
 
   async function generateCampaign() {
-
-    const songTitle = document.getElementById('songTitle').value.trim();
-    const artistName = document.getElementById('artistName').value.trim();
-    const releaseDate = document.getElementById('releaseDate').value;
-    const songDescription = document.getElementById('songDescription').value.trim();
-    const targetAudience = document.getElementById('targetAudience').value.trim();
-    const artistBio = document.getElementById('artistBio').value.trim();
-    const streamingStats = document.getElementById('streamingStats').value.trim();
-
-    if (!songTitle || !artistName || !songDescription) {
-      alert('Please fill in Song Title, Artist Name, and Song Description at minimum.');
-      return;
-    }
-
-    const activeModules = getActiveModules();
-    if (activeModules.length === 0) {
-      alert('Select at least one campaign module.');
-      return;
-    }
-
-    const btn = document.getElementById('generateBtn');
-    btn.disabled = true;
-    btn.textContent = 'Running...';
-
-    const outputBody = document.getElementById('outputBody');
-    outputBody.innerHTML = `
-      <div class="loading-state">
-        <div class="loading-label">Running The Machine</div>
-        <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
-        <div class="loading-label" style="font-size:0.6rem;opacity:0.4">Building your label infrastructure...</div>
-      </div>
-    `;
-
-    const systemPrompt = `You are MAJR — an elite music industry infrastructure AI that replicates exactly what major label A&R, marketing, and release teams do for signed artists. You are not a generic assistant. You think like a VP of Marketing at a major label, a seasoned music publicist, a sync licensing agent, and a playlist pitching specialist simultaneously.
-
-Your job is to generate a complete, specific, immediately actionable label-grade campaign for an independent artist's release. Every output must be specific to this artist and this song — never generic templates.
-
-Format your output with clear section headers using this exact format:
-[SECTION NAME]
-Content here...
-
-Be specific with names, outlets, platforms, contacts, and strategies. Write like you are handing this to a label intern who will execute it starting tomorrow.`;
-
-    const userPrompt = `Generate a complete label infrastructure campaign for the following release:
-
-ARTIST: ${artistName}
-SONG: "${songTitle}"
-RELEASE DATE: ${releaseDate || 'TBD — within 6 weeks'}
-SONG DESCRIPTION: ${songDescription}
-TARGET AUDIENCE: ${targetAudience || 'Hip-hop fans 18-28'}
-ARTIST BIO: ${artistBio || 'Independent artist building from the ground up.'}
-STREAMING/SOCIAL STATS: ${streamingStats || 'Independent, growing audience'}
-
-Generate the following campaign modules — be specific, actionable, and tailored to this exact artist and song:
-
-${activeModules.map((m, i) => `${i+1}. ${m}`).join('\n')}
-
-For each module deliver:
-- Specific targets (real outlets, curators, platforms, contacts where applicable)
-- Exact copy/templates the artist can use immediately (pitch emails, DM scripts, one-sheets)
-- Timing relative to release date
-- Priority ranking (what to do first)
-
-This is a real release. Make it feel like a real label campaign brief.`;
-
-    try {
-      const response = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ]
-        })
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || 'API Error');
-      }
-
-      const data = await response.json();
-      const fullText = data.choices?.[0]?.message?.content || '';
-
-      // Setup output
-      outputBody.innerHTML = `<div class="campaign-output" id="campaignOut">
-        <div class="campaign-header">
-          <h2>${songTitle.toUpperCase()}</h2>
-          <p>${artistName} · MAJR Campaign Brief · Generated ${new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}</p>
-        </div>
-        <div id="streamContent" class="section-content"></div>
-      </div>`;
-
-      const streamEl = document.getElementById('streamContent');
-      streamEl.innerHTML = formatOutput(fullText);
-      currentOutput = `MAJR CAMPAIGN BRIEF\n${songTitle} — ${artistName}\nGenerated ${new Date().toLocaleDateString()}\n\n` + fullText;
-
-    } catch (err) {
-      outputBody.innerHTML = `<div class="error-msg">⚠ Error: ${err.message}<br><br>Check your Azure endpoint, API key, and deployment name. Make sure your deployment is in "Succeeded" state in Azure AI Foundry.</div>`;
-    }
-
-    btn.disabled = false;
-    btn.textContent = 'Run The Machine';
-  }
-
-  function formatOutput(text) {
-    // Format [SECTION] headers
-    return text
-      .replace(/\[([^\]]+)\]/g, '</div><div class="campaign-section"><div class="section-label">$1</div><div class="section-content">')
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/^/, '<div class="section-content">')
-      + '</div></div>';
-  }
-
-  function copyOutput() {
-    if (!currentOutput) { alert('Generate a campaign first.'); return; }
-    navigator.clipboard.writeText(currentOutput).then(() => {
-      const btn = event.target;
-      btn.textContent = 'Copied!';
-      setTimeout(() => btn.textContent = 'Copy All', 2000);
-    });
-  }
-
-  function downloadOutput() {
-    if (!currentOutput) { alert('Generate a campaign first.'); return; }
-    const blob = new Blob([currentOutput], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `MAJR_Campaign_${Date.now()}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-</script>
-</body>
-</html>
+    const endpoint = document.getElementById('azureEnd
