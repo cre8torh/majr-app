@@ -2,802 +2,633 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>MAJR — The Label Machine</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --black: #080808;
-    --white: #f4f2ee;
-    --cream: #e8e4dc;
-    --accent: #c8f135;
-    --accent2: #ff4d1c;
-    --mid: #1a1a1a;
-    --border: #2a2a2a;
-    --muted: #555;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--black);
-    color: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* Grain overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.4;
-  }
-
-  /* Header */
-  header {
-    padding: 2rem 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    background: rgba(8,8,8,0.95);
-    backdrop-filter: blur(12px);
-    z-index: 100;
-  }
-
-  .logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.4rem;
-    letter-spacing: 0.15em;
-    color: var(--accent);
-    line-height: 1;
-  }
-
-  .logo span {
-    color: var(--white);
-    font-size: 0.9rem;
-    font-family: 'DM Mono', monospace;
-    display: block;
-    letter-spacing: 0.3em;
-    margin-top: -2px;
-    opacity: 0.5;
-  }
-
-  .status-pill {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    padding: 0.4rem 1rem;
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  .status-pill.connected {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  /* Hero */
-  .hero {
-    padding: 5rem 3rem 3rem;
-    max-width: 900px;
-    animation: fadeUp 0.8s ease forwards;
-  }
-
-  .hero-tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.4em;
-    color: var(--accent2);
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
-  }
-
-  .hero h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(3.5rem, 8vw, 7rem);
-    line-height: 0.95;
-    letter-spacing: 0.02em;
-    color: var(--white);
-    margin-bottom: 1.5rem;
-  }
-
-  .hero h1 em {
-    font-style: normal;
-    color: var(--accent);
-  }
-
-  .hero p {
-    font-size: 1.05rem;
-    color: #888;
-    max-width: 560px;
-    line-height: 1.7;
-    font-weight: 300;
-  }
-
-  /* Config panel */
-  .config-panel {
-    margin: 2rem 3rem;
-    padding: 1.5rem 2rem;
-    background: var(--mid);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .config-panel label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    color: var(--muted);
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 0.4rem;
-  }
-
-  .config-panel input {
-    background: var(--black);
-    border: 1px solid var(--border);
-    color: var(--white);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    padding: 0.6rem 1rem;
-    border-radius: 3px;
-    width: 320px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .config-panel input:focus {
-    border-color: var(--accent);
-  }
-
-  .config-panel input::placeholder { color: var(--muted); }
-
-  .connect-btn {
-    background: var(--accent);
-    color: var(--black);
-    border: none;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    padding: 0.7rem 1.5rem;
-    cursor: pointer;
-    border-radius: 3px;
-    font-weight: 500;
-    text-transform: uppercase;
-    transition: opacity 0.2s;
-    margin-top: 1.2rem;
-  }
-
-  .connect-btn:hover { opacity: 0.85; }
-
-  /* Main layout */
-  .main {
-    display: grid;
-    grid-template-columns: 420px 1fr;
-    gap: 0;
-    margin: 2rem 3rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    overflow: hidden;
-    min-height: 700px;
-  }
-
-  /* Input panel */
-  .input-panel {
-    background: var(--mid);
-    border-right: 1px solid var(--border);
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .panel-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.4em;
-    color: var(--muted);
-    text-transform: uppercase;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .field label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
-    color: #666;
-    text-transform: uppercase;
-  }
-
-  .field input,
-  .field textarea,
-  .field select {
-    background: var(--black);
-    border: 1px solid var(--border);
-    color: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    padding: 0.75rem 1rem;
-    border-radius: 3px;
-    outline: none;
-    transition: border-color 0.2s;
-    resize: none;
-  }
-
-  .field input:focus,
-  .field textarea:focus,
-  .field select:focus {
-    border-color: var(--accent);
-  }
-
-  .field input::placeholder,
-  .field textarea::placeholder { color: #333; }
-
-  .field select option { background: var(--black); }
-
-  .modules-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-  }
-
-  .module-check {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.6rem 0.8rem;
-    border: 1px solid var(--border);
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: transparent;
-  }
-
-  .module-check:hover { border-color: #444; }
-  .module-check.active {
-    border-color: var(--accent);
-    background: rgba(200, 241, 53, 0.05);
-  }
-
-  .module-check input { display: none; }
-
-  .module-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--border);
-    flex-shrink: 0;
-    transition: background 0.2s;
-  }
-
-  .module-check.active .module-dot { background: var(--accent); }
-
-  .module-check span {
-    font-size: 0.75rem;
-    color: #777;
-    line-height: 1.2;
-  }
-
-  .module-check.active span { color: var(--white); }
-
-  .generate-btn {
-    background: var(--accent);
-    color: var(--black);
-    border: none;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.4rem;
-    letter-spacing: 0.15em;
-    padding: 1rem 2rem;
-    cursor: pointer;
-    border-radius: 3px;
-    width: 100%;
-    transition: all 0.2s;
-    margin-top: auto;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .generate-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-  .generate-btn:active { transform: translateY(0); }
-  .generate-btn:disabled {
-    background: var(--border);
-    color: var(--muted);
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* Output panel */
-  .output-panel {
-    background: var(--black);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .output-header {
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .output-header .panel-title { border: none; padding: 0; }
-
-  .output-actions {
-    display: flex;
-    gap: 0.75rem;
-  }
-
-  .action-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: #666;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    padding: 0.4rem 0.9rem;
-    cursor: pointer;
-    border-radius: 3px;
-    text-transform: uppercase;
-    transition: all 0.2s;
-  }
-
-  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .output-body {
-    flex: 1;
-    padding: 2rem;
-    overflow-y: auto;
-  }
-
-  /* Empty state */
-  .empty-state {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    color: var(--muted);
-    text-align: center;
-  }
-
-  .empty-icon {
-    font-size: 3rem;
-    opacity: 0.2;
-  }
-
-  .empty-state h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
-    letter-spacing: 0.1em;
-    color: #2a2a2a;
-  }
-
-  .empty-state p {
-    font-size: 0.85rem;
-    color: #333;
-    max-width: 300px;
-    line-height: 1.6;
-  }
-
-  /* Loading state */
-  .loading-state {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
-  }
-
-  .loading-bar-wrap {
-    width: 280px;
-    height: 2px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-
-  .loading-bar {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
-    animation: loadBar 2s ease-in-out infinite;
-  }
-
-  .loading-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.3em;
-    color: var(--muted);
-    text-transform: uppercase;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  /* Output content */
-  .campaign-output {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    animation: fadeUp 0.5s ease forwards;
-  }
-
-  .campaign-header {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 1.5rem;
-  }
-
-  .campaign-header h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.2rem;
-    letter-spacing: 0.08em;
-    color: var(--accent);
-    line-height: 1;
-  }
-
-  .campaign-header p {
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-top: 0.3rem;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.1em;
-  }
-
-  .campaign-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.4em;
-    color: var(--accent2);
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .section-content {
-    font-size: 0.88rem;
-    line-height: 1.8;
-    color: #bbb;
-    white-space: pre-wrap;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .section-content strong {
-    color: var(--white);
-    font-weight: 500;
-  }
-
-  /* Streaming cursor */
-  .cursor {
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    background: var(--accent);
-    margin-left: 2px;
-    vertical-align: text-bottom;
-    animation: blink 0.8s step-end infinite;
-  }
-
-  /* Animations */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes loadBar {
-    0% { width: 0%; margin-left: 0; }
-    50% { width: 70%; margin-left: 15%; }
-    100% { width: 0%; margin-left: 100%; }
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  /* Error */
-  .error-msg {
-    background: rgba(255, 77, 28, 0.08);
-    border: 1px solid rgba(255, 77, 28, 0.3);
-    color: var(--accent2);
-    padding: 1rem 1.5rem;
-    border-radius: 3px;
-    font-size: 0.85rem;
-    font-family: 'DM Mono', monospace;
-    line-height: 1.6;
-  }
-
-  /* Footer */
-  footer {
-    padding: 2rem 3rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 1rem;
-  }
-
-  footer p {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: #333;
-    text-transform: uppercase;
-  }
-
-  .tier-badge {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    border: 1px solid rgba(200, 241, 53, 0.3);
-    padding: 0.3rem 0.8rem;
-    border-radius: 100px;
-  }
-
-  @media (max-width: 900px) {
-    header { padding: 1.5rem; }
-    .hero { padding: 3rem 1.5rem 2rem; }
-    .config-panel { margin: 1rem 1.5rem; }
-    .main { grid-template-columns: 1fr; margin: 1rem 1.5rem; }
-    .input-panel { border-right: none; border-bottom: 1px solid var(--border); }
-    .config-panel input { width: 100%; }
-  }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #F7F6F3;
+  --white: #FFFFFF;
+  --border: #E2DFD9;
+  --border2: #C8C3BB;
+  --text: #1A1917;
+  --text2: #4A4845;
+  --text3: #8A8784;
+  --green: #1E6B45;
+  --green-bg: #EAF3EE;
+  --green-border: #A8D4B8;
+  --red: #B83232;
+  --muted: #F0EDE8;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+header {
+  background: var(--text);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-name {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #F7F6F3;
+  line-height: 1;
+  font-family: Georgia, serif;
+}
+
+.logo-sub {
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  color: #666;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.28rem 0.7rem;
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+  transition: all 0.2s;
+}
+
+.badge.loading { background: #FFF8E1; color: #B45309; border-color: #FCD34D; }
+.badge.error { background: #FEE2E2; color: var(--red); border-color: #FCA5A5; }
+
+.intro {
+  background: var(--text);
+  padding: 2rem 1.25rem 2.25rem;
+}
+
+.intro h1 {
+  font-size: clamp(2rem, 9vw, 3.2rem);
+  font-weight: 800;
+  color: #F7F6F3;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.85rem;
+  font-family: Georgia, serif;
+}
+
+.intro p {
+  font-size: 0.88rem;
+  color: #888;
+  line-height: 1.7;
+  font-weight: 300;
+  max-width: 480px;
+}
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 1rem;
+  overflow: hidden;
+}
+
+.card-head {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+.mods {
+  padding: 0.85rem 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.mod {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  background: var(--bg);
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.mod.on {
+  background: var(--green-bg);
+  border-color: var(--green-border);
+}
+
+.mod-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--border2);
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.mod.on .mod-dot { background: var(--green); }
+
+.mod-text {
+  font-size: 0.76rem;
+  color: var(--text3);
+  font-weight: 400;
+  line-height: 1.2;
+  transition: color 0.15s;
+}
+
+.mod.on .mod-text { color: var(--green); font-weight: 600; }
+
+.form-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field label {
+  display: block;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 0.38rem;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.93rem;
+  padding: 0.72rem 0.9rem;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-appearance: none;
+  resize: none;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--text);
+  background: var(--white);
+}
+
+.field input::placeholder,
+.field textarea::placeholder { color: #C8C3BB; }
+
+.run-btn {
+  display: block;
+  width: calc(100% - 2rem);
+  margin: 0 1rem 1rem;
+  background: var(--text);
+  color: #F7F6F3;
+  border: none;
+  border-radius: 7px;
+  font-family: Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 1rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.run-btn:hover { opacity: 0.85; }
+.run-btn:disabled { background: var(--border2); cursor: not-allowed; opacity: 1; }
+
+.output-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 0 1rem 1rem;
+  overflow: hidden;
+  display: none;
+}
+
+.output-card.show { display: block; }
+
+.output-top {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.output-name {
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #F7F6F3;
+}
+
+.out-btns { display: flex; gap: 0.4rem; }
+
+.out-btn {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.32rem 0.7rem;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: transparent;
+  color: #999;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: all 0.15s;
+}
+
+.out-btn:hover { border-color: #888; color: #F7F6F3; }
+
+.output-body {
+  padding: 1.25rem 1rem;
+  max-height: 72vh;
+  overflow-y: auto;
+}
+
+.loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.loading-text { font-size: 0.88rem; color: var(--text2); }
+.loading-sub { font-size: 0.75rem; color: var(--text3); }
+
+.camp-meta {
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.camp-artist {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 0.15rem;
+}
+
+.camp-date { font-size: 0.72rem; color: var(--text3); }
+
+.camp-sections { display: flex; flex-direction: column; gap: 1.75rem; }
+
+.camp-section-title {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text3);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.camp-section-body {
+  font-size: 0.9rem;
+  line-height: 1.85;
+  color: var(--text2);
+  white-space: pre-wrap;
+}
+
+.camp-section-body strong { color: var(--text); font-weight: 600; }
+
+.err-box {
+  background: #FEE2E2;
+  border: 1px solid #FCA5A5;
+  border-radius: 5px;
+  padding: 1rem;
+  font-size: 0.88rem;
+  color: var(--red);
+  line-height: 1.6;
+}
+
+footer {
+  padding: 1.5rem 1.25rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+footer p { font-size: 0.7rem; color: var(--text3); }
+
+.beta {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green);
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  padding: 0.25rem 0.6rem;
+  border-radius: 100px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    MAJR
-    <span>The Label Machine</span>
+  <div>
+    <div class="logo-name">MAJR</div>
+    <div class="logo-sub">The Label Machine</div>
   </div>
-  <div class="status-pill" id="statusPill">Not Connected</div>
+  <div class="badge" id="badge">Ready</div>
 </header>
 
-<section class="hero">
-  <div class="hero-tag">Independent Artist Infrastructure</div>
-  <h1>Your music.<br><em>Their machine.</em><br>Now yours.</h1>
-  <p>MAJR runs the full label infrastructure for your release — playlist pitching, sync licensing, press outreach, creator seeding, radio submissions, DSP activation, and your full EPK. No label required.</p>
-</section>
-
-<!-- Config Panel -->
-<div class="config-panel">
-  <div>
-    <label>Azure OpenAI Endpoint</label>
-    <input type="text" id="azureEndpoint" placeholder="https://your-resource.openai.azure.com/" />
-  </div>
-  <div>
-    <label>API Key</label>
-    <input type="password" id="azureKey" placeholder="Your Azure OpenAI Key" />
-  </div>
-  <div>
-    <label>Deployment Name</label>
-    <input type="text" id="deploymentName" placeholder="majr-gpt4o" value="majr-gpt4o" />
-  </div>
-  <button class="connect-btn" onclick="testConnection()">Connect Engine</button>
+<div class="intro">
+  <h1>Your Label.<br>Your Machine.</h1>
+  <p>Enter your song details and MAJR builds the complete label campaign — playlist pitching, press outreach, sync licensing, creator seeding, radio, DSP strategy, and your EPK.</p>
 </div>
 
-<!-- Main App -->
-<div class="main">
+<!-- Modules -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-title">Campaign Modules</div>
+    <div class="card-title" style="color:#C8C3BB;">Tap to toggle</div>
+  </div>
+  <div class="mods" id="modsGrid">
+    <div class="mod on" onclick="this.classList.toggle('on')"><div class="mod-dot"></div><span class="mod-text">Release Timeline</span></div>
+    <div class="mod on" onclick="this.classList.toggle('on')"><div class="mod-dot"></div><span class="mod-text">Playlist Pitching</span></div>
+    <div class="mod on" onclick="this.classList.toggle('on')"><div class="mod-dot"></div><span class="mod-text">Press & Blog Outreach</span></div>
+    <div class="mod on" onclick="this.classList.toggle('on')"><div class="mod-dot"></div><span class="mod-text">Sync Licensing</span></div>
+    <div class="mod on" onclick="this.classList.toggle('on')"><div class="mod-dot"></div><span class="mod-text">Creator Seeding</span></div>
+    <div class="mod on" onclick="this.classList.toggle('on')"><div class="mod-dot"></div><span class="mod-text">College Radio</span></div>
+    <div class="mod on" onclick="this.classList.toggle('on')"><div class="mod-dot"></div><span class="mod-text">DSP Activation</span></div>
+    <div class="mod on" onclick="this.classList.toggle('on')"><div class="mod-dot"></div><span class="mod-text">EPK / One-Sheet</span></div>
+  </div>
+</div>
 
-  <!-- Input Panel -->
-  <div class="input-panel">
-    <div class="panel-title">// Release Brief</div>
-
+<!-- Form -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-title">Release Brief</div>
+  </div>
+  <div class="form-body">
     <div class="field">
-      <label>Song Title</label>
+      <label>Song Title *</label>
       <input type="text" id="songTitle" placeholder="e.g. No Ceiling" />
     </div>
-
     <div class="field">
-      <label>Artist Name</label>
+      <label>Artist Name *</label>
       <input type="text" id="artistName" placeholder="e.g. yelokidd" />
     </div>
-
     <div class="field">
       <label>Release Date</label>
       <input type="date" id="releaseDate" />
     </div>
-
     <div class="field">
-      <label>Describe the song — vibe, story, who it's for</label>
-      <textarea id="songDescription" rows="4" placeholder="e.g. Hard-hitting motivational record about coming up from nothing. Cinematic beat, aggressive delivery, built for people who feel overlooked. Sounds like late night ambition."></textarea>
+      <label>Describe the song — vibe, story, who it's for *</label>
+      <textarea id="songDesc" rows="4" placeholder="e.g. Hard-hitting motivational record about coming up from nothing. Cinematic beat, aggressive delivery. Built for people who feel overlooked."></textarea>
     </div>
-
     <div class="field">
       <label>Target Audience</label>
-      <input type="text" id="targetAudience" placeholder="e.g. 18-28, hip-hop fans, entrepreneurs, grinders" />
+      <input type="text" id="audience" placeholder="e.g. 18-28, hip-hop fans, entrepreneurs" />
     </div>
-
     <div class="field">
       <label>Artist Bio (1-2 sentences)</label>
-      <textarea id="artistBio" rows="2" placeholder="e.g. Florida-based independent hip-hop artist with 10+ years building an authentic sound rooted in luxury, hustle, and growth-from-nothing storytelling."></textarea>
+      <textarea id="bio" rows="2" placeholder="e.g. Florida-based independent hip-hop artist with 10+ years building a sound rooted in hustle and growth-from-nothing storytelling."></textarea>
     </div>
-
     <div class="field">
-      <label>Streaming Stats (optional)</label>
-      <input type="text" id="streamingStats" placeholder="e.g. 12K SoundCloud plays, 3.2K TikTok followers" />
-    </div>
-
-    <div class="field">
-      <label>Select Campaign Modules</label>
-      <div class="modules-grid" id="modulesGrid">
-        <div class="module-check active" onclick="toggleModule(this)">
-          <input type="checkbox" checked>
-          <div class="module-dot"></div>
-          <span>Release Timeline</span>
-        </div>
-        <div class="module-check active" onclick="toggleModule(this)">
-          <input type="checkbox" checked>
-          <div class="module-dot"></div>
-          <span>Playlist Pitching</span>
-        </div>
-        <div class="module-check active" onclick="toggleModule(this)">
-          <input type="checkbox" checked>
-          <div class="module-dot"></div>
-          <span>Press & Blog Outreach</span>
-        </div>
-        <div class="module-check active" onclick="toggleModule(this)">
-          <input type="checkbox" checked>
-          <div class="module-dot"></div>
-          <span>Sync Licensing</span>
-        </div>
-        <div class="module-check active" onclick="toggleModule(this)">
-          <input type="checkbox" checked>
-          <div class="module-dot"></div>
-          <span>Creator Seeding</span>
-        </div>
-        <div class="module-check active" onclick="toggleModule(this)">
-          <input type="checkbox" checked>
-          <div class="module-dot"></div>
-          <span>College Radio</span>
-        </div>
-        <div class="module-check active" onclick="toggleModule(this)">
-          <input type="checkbox" checked>
-          <div class="module-dot"></div>
-          <span>DSP Activation</span>
-        </div>
-        <div class="module-check active" onclick="toggleModule(this)">
-          <input type="checkbox" checked>
-          <div class="module-dot"></div>
-          <span>EPK / One-Sheet</span>
-        </div>
-      </div>
-    </div>
-
-    <button class="generate-btn" id="generateBtn" onclick="generateCampaign()">
-      Run The Machine
-    </button>
-  </div>
-
-  <!-- Output Panel -->
-  <div class="output-panel">
-    <div class="output-header">
-      <div class="panel-title">// Campaign Output</div>
-      <div class="output-actions">
-        <button class="action-btn" onclick="copyOutput()">Copy All</button>
-        <button class="action-btn" onclick="downloadOutput()">Export .txt</button>
-      </div>
-    </div>
-    <div class="output-body" id="outputBody">
-      <div class="empty-state">
-        <div class="empty-icon">◈</div>
-        <h3>Waiting For Input</h3>
-        <p>Connect your Azure engine, fill the release brief, and run the machine.</p>
-      </div>
+      <label>Streaming / Social Stats (optional)</label>
+      <input type="text" id="stats" placeholder="e.g. 12K SoundCloud plays, 3.2K TikTok followers" />
     </div>
   </div>
+</div>
 
+<button class="run-btn" id="runBtn" onclick="run()">Run The Machine</button>
+
+<!-- Output -->
+<div class="output-card" id="outputCard">
+  <div class="output-top">
+    <div class="output-name" id="outputName"></div>
+    <div class="out-btns">
+      <button class="out-btn" id="copyBtn" onclick="copyAll()">Copy</button>
+      <button class="out-btn" onclick="exportTxt()">Export</button>
+    </div>
+  </div>
+  <div class="output-body" id="outputBody"></div>
 </div>
 
 <footer>
   <p>MAJR © 2025 — Independent Artist Infrastructure</p>
-  <div class="tier-badge">Beta</div>
+  <div class="beta">Beta</div>
 </footer>
 
 <script>
-  let isConnected = false;
-  let currentOutput = '';
+let savedOutput = '';
 
-  function toggleModule(el) {
-    el.classList.toggle('active');
-    const cb = el.querySelector('input');
-    cb.checked = !cb.checked;
+function getMods() {
+  return [...document.querySelectorAll('.mod.on')]
+    .map(m => m.querySelector('.mod-text').textContent);
+}
+
+async function run() {
+  const songTitle = document.getElementById('songTitle').value.trim();
+  const artistName = document.getElementById('artistName').value.trim();
+  const releaseDate = document.getElementById('releaseDate').value;
+  const songDesc = document.getElementById('songDesc').value.trim();
+  const audience = document.getElementById('audience').value.trim();
+  const bio = document.getElementById('bio').value.trim();
+  const stats = document.getElementById('stats').value.trim();
+
+  if (!songTitle || !artistName || !songDesc) {
+    alert('Please fill in Song Title, Artist Name, and Song Description.');
+    return;
   }
 
-  function getActiveModules() {
-    const checks = document.querySelectorAll('.module-check');
-    const active = [];
-    checks.forEach(c => {
-      if (c.classList.contains('active')) {
-        active.push(c.querySelector('span').textContent);
-      }
+  const mods = getMods();
+  if (!mods.length) {
+    alert('Please select at least one module.');
+    return;
+  }
+
+  const btn = document.getElementById('runBtn');
+  const badge = document.getElementById('badge');
+  const card = document.getElementById('outputCard');
+  const body = document.getElementById('outputBody');
+  const nameEl = document.getElementById('outputName');
+
+  btn.disabled = true;
+  btn.textContent = 'Running...';
+  badge.className = 'badge loading';
+  badge.textContent = 'Processing';
+
+  card.className = 'output-card show';
+  nameEl.textContent = songTitle.toUpperCase() + ' — ' + artistName;
+  body.innerHTML = `
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <div class="loading-text">Building your label campaign...</div>
+      <div class="loading-sub">This takes about 20–40 seconds</div>
+    </div>
+  `;
+
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const system = `You are MAJR — an elite music industry AI that replicates what major label infrastructure does for signed artists. You think like a label VP of Marketing, a music publicist, a sync licensing agent, and a playlist pitching specialist combined.
+
+Generate complete, specific, immediately actionable campaigns. Use real names — actual playlist curators, actual music blogs, actual radio stations, actual TikTok creators in the hip-hop space. Write like a $500/hr music marketing firm handed this to their team to execute tomorrow.
+
+Format each section exactly like this:
+[SECTION NAME]
+Content...`;
+
+  const prompt = `Generate a complete label infrastructure campaign for:
+
+ARTIST: ${artistName}
+SONG: "${songTitle}"
+RELEASE DATE: ${releaseDate || 'Within 6 weeks'}
+DESCRIPTION: ${songDesc}
+TARGET AUDIENCE: ${audience || 'Hip-hop fans 18-28'}
+BIO: ${bio || 'Independent artist building from the ground up.'}
+STATS: ${stats || 'Independent, growing audience'}
+
+Modules to generate:
+${mods.map((m, i) => `${i + 1}. ${m}`).join('\n')}
+
+For each module include:
+- Real specific targets (actual curator/blog/station/creator names)
+- Exact copy ready to use today (email subject lines, DM scripts, pitch templates)
+- Timing by week relative to release date
+- Priority order for execution
+
+Make every line actionable. No filler. No generic advice.`;
+
+  try {
+    const res = await fetch('/api/campaign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ system, prompt })
     });
-    return active;
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+
+    const text = data.content || '';
+    if (!text) throw new Error('No content returned.');
+
+    savedOutput = `MAJR CAMPAIGN BRIEF\n${songTitle} — ${artistName}\n${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}\n\n${text}`;
+    body.innerHTML = renderCampaign(artistName, text);
+
+    badge.className = 'badge';
+    badge.textContent = 'Done';
+
+  } catch (err) {
+    body.innerHTML = `<div class="err-box"><strong>Error:</strong> ${err.message}</div>`;
+    badge.className = 'badge error';
+    badge.textContent = 'Error';
   }
 
-  async function testConnection() {
-    const endpoint = document.getElementById('azureEndpoint').value.trim();
-    const key = document.getElementById('azureKey').value.trim();
-    const deployment = document.getElementById('deploymentName').value.trim();
-    const pill = document.getElementById('statusPill');
+  btn.disabled = false;
+  btn.textContent = 'Run The Machine';
+}
 
-    if (!endpoint || !key || !deployment) {
-      alert('Please fill in all connection fields.');
-      return;
+function renderCampaign(artist, text) {
+  const date = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const parts = text.split(/\[([^\]]+)\]/);
+  let html = `
+    <div class="camp-meta">
+      <div class="camp-artist">${artist}</div>
+      <div class="camp-date">Generated ${date} · MAJR Campaign Brief</div>
+    </div>
+    <div class="camp-sections">
+  `;
+
+  if (parts.length > 1) {
+    for (let i = 1; i < parts.length; i += 2) {
+      const title = parts[i];
+      const content = (parts[i + 1] || '').trim()
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      html += `
+        <div>
+          <div class="camp-section-title">${title}</div>
+          <div class="camp-section-body">${content}</div>
+        </div>
+      `;
     }
-
-    pill.textContent = 'Connecting...';
-    pill.className = 'status-pill';
-
-    try {
-      const url = `${endpoint.replace(/\/$/, '')}/openai/deployments/${deployment}/chat/completions?api-version=2024-02-15-preview`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'api-key': key },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: 'ping' }],
-          max_tokens: 5
-        })
-      });
-
-      if (res.ok) {
-        isConnected = true;
-        pill.textContent = 'Engine Live';
-        pill.className = 'status-pill connected';
-      } else {
-        const err = await res.json();
-        pill.textContent = 'Connection Failed';
-        pill.className = 'status-pill';
-        alert(`Connection error: ${err.error?.message || 'Check your credentials.'}`);
-      }
-    } catch (e) {
-      pill.textContent = 'Not Connected';
-      pill.className = 'status-pill';
-      alert('Connection failed. Check your endpoint URL and try again.');
-    }
+  } else {
+    html += `<div class="camp-section-body">${text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')}</div>`;
   }
 
-  async function generateCampaign() {
-    const endpoint = document.getElementById('azureEnd
+  html += '</div>';
+  return html;
+}
+
+function copyAll() {
+  if (!savedOutput) return;
+  navigator.clipboard.writeText(savedOutput).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+
+function exportTxt() {
+  if (!savedOutput) return;
+  const blob = new Blob([savedOutput], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `MAJR_${Date.now()}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
